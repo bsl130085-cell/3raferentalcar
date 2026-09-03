@@ -1029,11 +1029,29 @@ function initExperience15(){updateFavoriteCount();initSoundMode();initIntro();re
       a.querySelector('.favoriteButton')?.addEventListener('click',e=>{e.stopPropagation();toggleFavorite(c)});
       box.appendChild(a);
     });
+    // Cars continue loading automatically as the user scrolls — no Show more button.
+    if(window.__fleetAutoObserver){try{window.__fleetAutoObserver.disconnect()}catch(_){}}
     if(limit<list.length){
-      const more=document.createElement('button');more.type='button';more.className='ultraLoadMore';
-      more.textContent=lang==='ar'?`عرض سيارات زيادة (${list.length-limit})`:lang==='he'?`הצג עוד רכבים (${list.length-limit})`:`Show more cars (${list.length-limit})`;
-      more.addEventListener('click',()=>{window.__fleetVisible=Math.min(list.length,(window.__fleetVisible||10)+10);renderFleet()});
-      box.appendChild(more);
+      const sentinel=document.createElement('div');
+      sentinel.className='fleetAutoSentinel';
+      sentinel.setAttribute('aria-hidden','true');
+      sentinel.style.cssText='grid-column:1/-1;height:1px;width:100%;pointer-events:none;opacity:0;';
+      box.appendChild(sentinel);
+      if('IntersectionObserver' in window){
+        let loadingNext=false;
+        window.__fleetAutoObserver=new IntersectionObserver(entries=>{
+          if(loadingNext||!entries.some(e=>e.isIntersecting))return;
+          loadingNext=true;
+          try{window.__fleetAutoObserver.disconnect()}catch(_){}
+          window.__fleetVisible=Math.min(list.length,(window.__fleetVisible||10)+10);
+          requestAnimationFrame(()=>renderFleet());
+        },{root:null,rootMargin:'700px 0px',threshold:0});
+        window.__fleetAutoObserver.observe(sentinel);
+      }else{
+        // Very old browsers: keep the full list reachable without requiring a button.
+        window.__fleetVisible=list.length;
+        requestAnimationFrame(()=>renderFleet());
+      }
     }
     applyCoverPresentation(box);stabilizeImages(box,2);
   };
