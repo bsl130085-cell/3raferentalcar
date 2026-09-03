@@ -523,10 +523,11 @@ section.xSectionLive:before{content:"";position:absolute;inset:0;pointer-events:
   }
   html.perfMobile .carMedia:after{box-shadow:none!important;opacity:.55!important}
   html.perfMobile .carGlowIcon{box-shadow:0 0 12px color-mix(in srgb,var(--neon,#6ff) 28%,transparent)!important}
+  /* iOS Safari paint fix: content-visibility can leave lazy images as black/blank boxes. */
   html.perfMobile main > section,
   html.perfMobile .xChapterWrap{
-    content-visibility:auto;
-    contain-intrinsic-size:900px;
+    content-visibility:visible!important;
+    contain:none!important;
   }
   html.perfMobile img{image-rendering:auto}
   html.perfMobile .perfVideoPoster{width:100%;height:100%;object-fit:cover;display:block}
@@ -550,7 +551,21 @@ section.xSectionLive:before{content:"";position:absolute;inset:0;pointer-events:
   html.perfMobile .mostCard img,
   html.perfMobile .swipeCard img,
   html.perfMobile .trendCard img{animation:none!important;transition:none!important}
-  html.perfMobile .carCard,html.perfMobile .featureCard,html.perfMobile .mostCard,html.perfMobile .swipeCard,html.perfMobile .trendCard{contain:layout paint style}
+  /* Avoid paint containment on iPhone; it can suppress absolutely-positioned/lazy images. */
+  html.perfMobile .carCard,html.perfMobile .featureCard,html.perfMobile .mostCard,html.perfMobile .swipeCard,html.perfMobile .trendCard{contain:none!important}
+  html.perfMobile .carCard img,
+  html.perfMobile .featureCard img,
+  html.perfMobile .mostCard img,
+  html.perfMobile .swipeCard img,
+  html.perfMobile .trendCard img,
+  html.perfMobile .weekHeroImg,
+  html.perfMobile .weekThumb img{
+    display:block!important;
+    visibility:visible!important;
+    opacity:1!important;
+    -webkit-transform:translateZ(0);
+    transform:translateZ(0);
+  }
   html.perfMobile .ultraLoadMore{display:block;width:min(420px,calc(100% - 28px));margin:22px auto 4px;padding:15px 18px;border:1px solid rgba(216,184,117,.42);border-radius:999px;background:#111;color:#f1eadf;font-weight:900;letter-spacing:.05em}
   html.perfMobile .perfPosterShell{position:relative;min-height:250px;background:#101010;overflow:hidden}
   html.perfMobile .perfPosterShell img{width:100%;height:100%;object-fit:cover;display:block}
@@ -934,6 +949,27 @@ function initExperience15(){updateFavoriteCount();initSoundMode();initIntro();re
     clean.addEventListener('input',()=>{window.__fleetVisible=12;renderFleet()});
   }
 
+  const repairVisibleImages=(root=document)=>{
+    const imgs=[...root.querySelectorAll('img[src]')];
+    imgs.forEach((img,i)=>{
+      img.decoding='async';
+      img.style.visibility='visible';img.style.opacity='1';
+      const r=img.getBoundingClientRect();
+      if(r.bottom>-innerHeight && r.top<innerHeight*1.5){
+        if(i<4)img.loading='eager';
+        // Safari sometimes keeps a lazy image blank after fast scrolling. Re-assign once.
+        if(img.complete && !img.naturalWidth && !img.dataset.paintRetry){
+          img.dataset.paintRetry='1';
+          const src=img.currentSrc||img.getAttribute('src');
+          if(src){img.removeAttribute('src');requestAnimationFrame(()=>img.src=src)}
+        }
+      }
+    });
+  };
+  let paintRAF=0;
+  addEventListener('scroll',()=>{if(paintRAF)return;paintRAF=requestAnimationFrame(()=>{paintRAF=0;repairVisibleImages()})},{passive:true});
+  addEventListener('pageshow',()=>repairVisibleImages());
+
   window.__fleetVisible=12;
   renderFleet=function(){
     const search=document.getElementById('search');
@@ -945,7 +981,7 @@ function initExperience15(){updateFavoriteCount();initSoundMode();initIntro();re
     list.slice(0,limit).forEach((c,i)=>{
       const a=document.createElement('article');a.className='carCard reveal show cineCard';a.style.setProperty('--neon',neonForCar(c,i));
       const cover=coverFor(c);
-      a.innerHTML=`<div class="carMedia">${cover?`<img loading="lazy" decoding="async" src="${cover}" alt="${c.name}">`:`<div class="emptyCar">${tx('noPhotos')}</div>`}${i<4?'<span class="badge">Signature</span>':''}<div class="carGhostName">${c.name}</div>${availabilityBadgeHTML(c)}${favoriteButtonHTML(c)}<button class="compareButton${compareCars.some(x=>x.name===c.name)?' selected':''}" type="button">${compareCars.some(x=>x.name===c.name)?'✓ ':''}${tx('compare')}</button></div><div class="carBody"><div class="carOverline">${brand(c.name)} · ${bodyTypeLabel(c.name,lang)}</div><h3>${c.name}</h3><p class="carDesc">${carSummary(c,lang)}</p><div class="carBottom"><span>${c.images.length} ${tx('photos')}</span><span class="miniArrow">↗</span></div></div>`;
+      a.innerHTML=`<div class="carMedia">${cover?`<img loading="${i<4?'eager':'lazy'}" decoding="async" ${i<2?'fetchpriority="high"':''} src="${cover}" alt="${c.name}">`:`<div class="emptyCar">${tx('noPhotos')}</div>`}${i<4?'<span class="badge">Signature</span>':''}<div class="carGhostName">${c.name}</div>${availabilityBadgeHTML(c)}${favoriteButtonHTML(c)}<button class="compareButton${compareCars.some(x=>x.name===c.name)?' selected':''}" type="button">${compareCars.some(x=>x.name===c.name)?'✓ ':''}${tx('compare')}</button></div><div class="carBody"><div class="carOverline">${brand(c.name)} · ${bodyTypeLabel(c.name,lang)}</div><h3>${c.name}</h3><p class="carDesc">${carSummary(c,lang)}</p><div class="carBottom"><span>${c.images.length} ${tx('photos')}</span><span class="miniArrow">↗</span></div></div>`;
       a.onclick=()=>openCar(c);
       a.querySelector('.compareButton')?.addEventListener('click',e=>{e.stopPropagation();toggleCompare(c)});
       a.querySelector('.favoriteButton')?.addEventListener('click',e=>{e.stopPropagation();toggleFavorite(c)});
@@ -958,6 +994,7 @@ function initExperience15(){updateFavoriteCount();initSoundMode();initIntro();re
       box.appendChild(more);
     }
     applyCoverPresentation(box);
+    requestAnimationFrame(()=>repairVisibleImages(box));
   };
 
   // Only 4 video posters exist at first. More are added by explicit tap, never by fast scrolling.
