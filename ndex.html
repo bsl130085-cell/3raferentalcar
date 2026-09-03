@@ -538,6 +538,24 @@ section.xSectionLive:before{content:"";position:absolute;inset:0;pointer-events:
     font-weight:800;letter-spacing:.05em;cursor:pointer
   }
   html.perfMobile .xMiniPlayer{display:none!important}
+  html.perfMobile .kineticLaunch,
+  html.perfMobile .cinemaStrip,
+  html.perfMobile #brandRooms,
+  html.perfMobile #recentlyViewed,
+  html.perfMobile #scrollStory,
+  html.perfMobile #dayNightStory{display:none!important}
+  html.perfMobile .xShowroomCard img,
+  html.perfMobile .carCard img,
+  html.perfMobile .featureCard img,
+  html.perfMobile .mostCard img,
+  html.perfMobile .swipeCard img,
+  html.perfMobile .trendCard img{animation:none!important;transition:none!important}
+  html.perfMobile .carCard,html.perfMobile .featureCard,html.perfMobile .mostCard,html.perfMobile .swipeCard,html.perfMobile .trendCard{contain:layout paint style}
+  html.perfMobile .ultraLoadMore{display:block;width:min(420px,calc(100% - 28px));margin:22px auto 4px;padding:15px 18px;border:1px solid rgba(216,184,117,.42);border-radius:999px;background:#111;color:#f1eadf;font-weight:900;letter-spacing:.05em}
+  html.perfMobile .perfPosterShell{position:relative;min-height:250px;background:#101010;overflow:hidden}
+  html.perfMobile .perfPosterShell img{width:100%;height:100%;object-fit:cover;display:block}
+  html.perfMobile .perfPosterShell .videoPlayIcon{z-index:5}
+  html.perfMobile *{-webkit-tap-highlight-color:transparent}
 }
 </style>
 </head>
@@ -893,10 +911,135 @@ function setLang(l){lang=T[l]?l:'en';document.documentElement.lang=lang;document
 
 function initExperience15(){updateFavoriteCount();initSoundMode();initIntro();renderTrending();renderCarOfWeek();document.getElementById('favoritesToggle')?.addEventListener('click',openFavorites);document.getElementById('favoritesClose')?.addEventListener('click',closeFavorites);document.getElementById('favoritesOverlay')?.addEventListener('click',e=>{if(e.target.id==='favoritesOverlay')closeFavorites()});document.getElementById('modalFavorite')?.addEventListener('click',()=>toggleFavorite(currentCar));document.getElementById('modalShare')?.addEventListener('click',()=>shareCar(currentCar));document.getElementById('modalConcierge')?.addEventListener('click',()=>openConcierge(currentCar?.name||''));['conciergeTop','conciergeHero','conciergeContact'].forEach(id=>document.getElementById(id)?.addEventListener('click',()=>openConcierge(currentCar?.name||'')));document.getElementById('reelsOpen')?.addEventListener('click',()=>openReels(0));document.getElementById('reelsClose')?.addEventListener('click',closeReels);document.getElementById('surpriseBtn')?.addEventListener('click',surpriseMe);document.getElementById('surpriseClose')?.addEventListener('click',closeSurprise);document.getElementById('surpriseOpen')?.addEventListener('click',()=>{const c=surpriseCar;closeSurprise();if(c)openCar(c)});document.getElementById('quickSend').onclick=()=>prepareBooking(document.getElementById('quickCar').value,document.getElementById('quickStart').value,document.getElementById('quickEnd').value,document.getElementById('quickPickup').value);document.getElementById('modalSend').onclick=()=>prepareBooking(currentCar?.name||'',document.getElementById('modalStart').value,document.getElementById('modalEnd').value,document.getElementById('modalPickup').value);openSharedCarFromHash()}
 
+
+// ==== 3RAFE iPhone ULTRA bootstrap: runs BEFORE the first heavy render ====
+(function(){
+  const MOBILE=window.matchMedia('(max-width: 900px), (pointer: coarse)').matches;
+  window.__3RAFE_MOBILE_ULTRA=MOBILE;
+  if(!MOBILE)return;
+  document.documentElement.classList.add('perfMobile','perfUltra');
+
+  const loadImg=(img,src)=>{
+    if(!img||!src)return;
+    img.loading='lazy';img.decoding='async';
+    if('fetchPriority' in img)img.fetchPriority='low';
+    img.src=src;
+  };
+
+  // Remove the old search input listener that captured the heavy renderFleet function.
+  const oldSearch=document.getElementById('search');
+  if(oldSearch){
+    const clean=oldSearch.cloneNode(true);
+    oldSearch.replaceWith(clean);
+    clean.addEventListener('input',()=>{window.__fleetVisible=12;renderFleet()});
+  }
+
+  window.__fleetVisible=12;
+  renderFleet=function(){
+    const search=document.getElementById('search');
+    const q=(search?.value||'').trim().toLowerCase();
+    const list=cars.filter(c=>(activeFilter==='all'||category(c.name)===activeFilter)&&(!q||c.name.toLowerCase().includes(q)));
+    const box=document.getElementById('fleetGrid');if(!box)return;
+    const limit=Math.min(list.length,window.__fleetVisible||12);
+    box.innerHTML='';
+    list.slice(0,limit).forEach((c,i)=>{
+      const a=document.createElement('article');a.className='carCard reveal show cineCard';a.style.setProperty('--neon',neonForCar(c,i));
+      const cover=coverFor(c);
+      a.innerHTML=`<div class="carMedia">${cover?`<img loading="lazy" decoding="async" src="${cover}" alt="${c.name}">`:`<div class="emptyCar">${tx('noPhotos')}</div>`}${i<4?'<span class="badge">Signature</span>':''}<div class="carGhostName">${c.name}</div>${availabilityBadgeHTML(c)}${favoriteButtonHTML(c)}<button class="compareButton${compareCars.some(x=>x.name===c.name)?' selected':''}" type="button">${compareCars.some(x=>x.name===c.name)?'✓ ':''}${tx('compare')}</button></div><div class="carBody"><div class="carOverline">${brand(c.name)} · ${bodyTypeLabel(c.name,lang)}</div><h3>${c.name}</h3><p class="carDesc">${carSummary(c,lang)}</p><div class="carBottom"><span>${c.images.length} ${tx('photos')}</span><span class="miniArrow">↗</span></div></div>`;
+      a.onclick=()=>openCar(c);
+      a.querySelector('.compareButton')?.addEventListener('click',e=>{e.stopPropagation();toggleCompare(c)});
+      a.querySelector('.favoriteButton')?.addEventListener('click',e=>{e.stopPropagation();toggleFavorite(c)});
+      box.appendChild(a);
+    });
+    if(limit<list.length){
+      const more=document.createElement('button');more.type='button';more.className='ultraLoadMore';
+      more.textContent=lang==='ar'?`عرض سيارات زيادة (${list.length-limit})`:lang==='he'?`הצג עוד רכבים (${list.length-limit})`:`Show more cars (${list.length-limit})`;
+      more.onclick=()=>{window.__fleetVisible=Math.min(list.length,(window.__fleetVisible||12)+12);renderFleet()};
+      box.appendChild(more);
+    }
+    applyCoverPresentation(box);
+  };
+
+  // Only 4 video posters exist at first. More are added by explicit tap, never by fast scrolling.
+  window.__videoVisible=4;
+  renderVideos=function(){
+    const rail=document.getElementById('videoRail');if(!rail)return;
+    rail.innerHTML='';
+    const limit=Math.min(videoUrls.length,window.__videoVisible||4);
+    for(let i=0;i<limit;i++){
+      const u=videoUrls[i],c=document.createElement('article');c.className='videoCard perfPlaceholder';c.style.setProperty('--vneon',neonFor(i+3));
+      const shell=document.createElement('div');shell.className='perfPosterShell';
+      const poster=document.createElement('img');poster.alt='3RAFE video '+(i+1);if(videoPosters[i])loadImg(poster,videoPosters[i]);
+      const play=document.createElement('button');play.type='button';play.className='videoPlayIcon';play.setAttribute('aria-label','Play video');play.innerHTML='<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M24 17 48 32 24 47Z" fill="currentColor"/></svg>';
+      shell.append(poster,play);
+      const n=document.createElement('div');n.className='videoNum';n.textContent=`${tx('film')} ${String(i+1).padStart(2,'0')}`;
+      const reel=document.createElement('button');reel.type='button';reel.className='reelOpenBtn';reel.textContent=tx('reelsMode');reel.onclick=e=>{e.stopPropagation();openReels(i)};
+      play.onclick=e=>{e.stopPropagation();const v=document.createElement('video');v.controls=true;v.playsInline=true;v.preload='none';v.poster=videoPosters[i]||'';v.src=u;v.addEventListener('play',()=>rail.querySelectorAll('video').forEach(o=>{if(o!==v&&!o.paused)o.pause()}));shell.replaceChildren(v);v.play().catch(()=>{})};
+      c.append(shell,n,reel);rail.appendChild(c);
+    }
+    if(limit<videoUrls.length){
+      const more=document.createElement('button');more.type='button';more.className='ultraLoadMore';
+      more.textContent=lang==='ar'?`عرض فيديوهات زيادة (${videoUrls.length-limit})`:lang==='he'?`הצג עוד סרטונים (${videoUrls.length-limit})`:`Show more videos (${videoUrls.length-limit})`;
+      more.onclick=()=>{window.__videoVisible=Math.min(videoUrls.length,(window.__videoVisible||4)+4);renderVideos()};
+      rail.appendChild(more);
+    }
+  };
+
+  // Reels keep 41 lightweight sections, but create a real <video> only when a slide is visible.
+  buildReels=function(){
+    const sc=document.getElementById('reelsScroller');if(!sc)return;
+    sc.innerHTML=videoUrls.map((u,i)=>`<section class="reelSlide" data-reel="${i}" data-src="${u}" data-poster="${videoPosters[i]||''}"><div class="reelInfo">${tx('film')} ${String(i+1).padStart(2,'0')} · 3RAFE SIGNATURE</div></section>`).join('');
+    if(reelObserver)reelObserver.disconnect();
+    reelObserver=new IntersectionObserver(entries=>entries.forEach(e=>{
+      const s=e.target;
+      if(e.isIntersecting){
+        if(!s.querySelector('video')){
+          const v=document.createElement('video');v.controls=true;v.playsInline=true;v.preload='none';v.poster=s.dataset.poster||'';v.src=s.dataset.src;s.prepend(v);
+        }
+      }else{
+        const v=s.querySelector('video');if(v){try{v.pause()}catch(_){};v.removeAttribute('src');v.load();v.remove()}
+      }
+    }),{root:sc,rootMargin:'20% 0px',threshold:.05});
+    sc.querySelectorAll('.reelSlide').forEach(s=>reelObserver.observe(s));
+  };
+
+  // No looping/autoplay video in Car of the Week on phones.
+  renderCarOfWeek=function(){
+    const box=document.getElementById('weekFeature');if(!box)return;
+    const eligible=cars.filter(c=>c.images.length>=3);if(!eligible.length)return;
+    const c=eligible[isoWeekIndex()%eligible.length],n=neonForCar(c,0),thumbs=c.images.slice(0,2);
+    box.style.setProperty('--week-neon',n);
+    box.innerHTML=`<img class="weekHeroImg" loading="lazy" decoding="async" src="${coverFor(c)}" alt="${c.name}"><div class="weekGhost">${c.name}</div><div class="weekContent"><div class="weekCopy"><div class="trendBadge">${tx('weekKicker')}</div><h3>${c.name}</h3><p>${carSummary(c,lang)}</p><button class="btn primary" id="weekOpen" type="button">${tx('openCar')}</button></div><div class="weekMedia">${thumbs.map(src=>`<div class="weekThumb"><img loading="lazy" decoding="async" src="${src}" alt="${c.name}"></div>`).join('')}</div></div>`;
+    box.querySelector('#weekOpen')?.addEventListener('click',()=>openCar(c));applyCoverPresentation(box);
+  };
+
+  // Load 6 gallery photos at a time instead of every photo of the car.
+  openCar=function(c){
+    if(!c)return;currentCar=c;const ci=Math.max(0,cars.indexOf(c)),cn=neonForCar(c,ci),modal=document.getElementById('modal');
+    modal.style.setProperty('--modal-neon',cn);document.body.style.setProperty('--brand-glow',cn);
+    document.getElementById('modalTitle').textContent=c.name;document.getElementById('bookingCarName').textContent=c.name;document.getElementById('modalGhostName').textContent=c.name;document.getElementById('modalSpotlightTitle').textContent=c.name;document.getElementById('modalSpotlightType').textContent=bodyTypeLabel(c.name,lang);
+    const mc=document.getElementById('modalCover');mc.src=coverFor(c);mc.alt=c.name;mc.decoding='async';
+    document.getElementById('modalStart').value='';document.getElementById('modalEnd').value='';
+    const g=document.getElementById('gallery');g.innerHTML='';g.style.setProperty('--neon',cn);updateCarDetails(c);
+    try{updateModalFavorite()}catch(_){}try{updateModalAvailability(c)}catch(_){}try{xSaveRecent(c)}catch(_){}
+    if(!c.images.length)g.innerHTML=`<div class="emptyCar">${tx('noPhotos')}</div>`;
+    else{
+      let shown=0;const batch=6,more=document.createElement('button');more.type='button';more.className='perfGalleryMore';
+      more.textContent=lang==='ar'?'عرض صور زيادة':lang==='he'?'הצג עוד תמונות':'Show more photos';g.appendChild(more);
+      const add=()=>{const end=Math.min(c.images.length,shown+batch);for(let i=shown;i<end;i++){const im=new Image();im.loading='lazy';im.decoding='async';im.alt=c.name;im.src=c.images[i];im.onerror=()=>im.remove();g.insertBefore(im,more)}shown=end;if(shown>=c.images.length)more.remove();applyCoverPresentation(g)};
+      more.onclick=add;add();
+    }
+    modal.classList.add('open');applyCoverPresentation(modal);document.body.style.overflow='hidden';
+  };
+  window.__3rafeUltraOpenCar=openCar;
+  window.__3rafeUltraRenderFleet=renderFleet;
+  window.__3rafeUltraRenderVideos=renderVideos;
+})();
+
 setLang(saved);initTheme();animateLiveCounts();initCursorGlow();initExperience15();
 
 // ===== KINETIC CINEMA MOTION =====
-(function(){
+(function(){if(window.__3RAFE_MOBILE_ULTRA)return;
   const progress=document.getElementById('scrollProgress');
   const updateProgress=()=>{const d=document.documentElement;const max=d.scrollHeight-d.clientHeight;progress.style.width=(max?Math.min(100,(d.scrollTop/max)*100):0)+'%'};
   addEventListener('scroll',updateProgress,{passive:true});updateProgress();
@@ -937,7 +1080,7 @@ setLang(saved);initTheme();animateLiveCounts();initCursorGlow();initExperience15
 
 
 // ===== CINEMATIC WOW INTERACTIONS =====
-(function(){
+(function(){if(window.__3RAFE_MOBILE_ULTRA)return;
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const hero=document.querySelector('.hero');
   const orbits=document.querySelector('.heroOrbits');
@@ -1177,7 +1320,7 @@ function xInit(){
 }
 
 // === 3RAFE cinematic upgrades: hero fog, mirror transition, light trails, exterior-first covers ===
-(function(){
+(function(){if(window.__3RAFE_MOBILE_ULTRA)return;
   const preferredCovers={
     "Mercedes GLC 300":coverOverrides["Mercedes GLC 300"],
     "Mercedes Gle63 Brubs":coverOverrides["Mercedes Gle63 Brubs"],
@@ -1256,7 +1399,7 @@ function xInit(){
 
 
 // === 3RAFE loader / startup sound / car ignition / reels polish ===
-(function(){
+(function(){if(window.__3RAFE_MOBILE_ULTRA)return;
   function enhanceIntro(){
     const intro=document.getElementById('siteIntro'),inner=intro?.querySelector('.introInner');
     if(!intro||!inner||inner.querySelector('.xIntroDash'))return;
@@ -1316,6 +1459,21 @@ function xInit(){
 (function(){
   const perfMobile = window.matchMedia('(max-width: 900px), (pointer: coarse)').matches;
   if(!perfMobile) return;
+  if(window.__3RAFE_MOBILE_ULTRA){
+    document.documentElement.classList.add('perfMobile','perfUltra');
+    if(window.__3rafeUltraOpenCar)openCar=window.__3rafeUltraOpenCar;
+    if(window.__3rafeUltraRenderFleet)renderFleet=window.__3rafeUltraRenderFleet;
+    if(window.__3rafeUltraRenderVideos)renderVideos=window.__3rafeUltraRenderVideos;
+    xInitDayNight=function(){const scene=document.getElementById('xDayNight');const car=byCarName('BMW M4 Convertible')||cars.find(c=>c.images.length);if(car){const im=document.getElementById('xDayCar');if(im){im.src=coverFor(car);im.loading='lazy';im.decoding='async'}}if(scene)scene.style.setProperty('--night','.42')};
+    xInitSpeedo=function(){const needle=document.getElementById('xNeedle'),v=document.getElementById('xSpeedValue');if(needle)needle.style.transform='rotate(-118deg)';if(v)v.textContent='0'};
+    xInitMiniPlayer=function(){const mini=document.getElementById('xMiniPlayer');if(mini)mini.classList.remove('open')};
+    xInitSectionPulse=function(){};
+    xInitDoorOpen=function(){xInitDoorOpen.run=()=>{}};
+    xRenderBrands=function(){};xRenderRecent=function(){};xRenderStory=function(){};
+    xApplyShowroomFX=function(root=document){root.querySelectorAll('.carCard,.featureCard,.mostCard,.swipeCard,.favCard,.trendCard,.compareCol,.xResultCard,.xBrandCar,.xRecentCard,.xSimilarCard').forEach(card=>card.classList.add('xShowroomCard'))};
+    document.addEventListener('visibilitychange',()=>{if(document.hidden)document.querySelectorAll('video').forEach(v=>{try{v.pause()}catch(e){}})});
+    return;
+  }
   document.documentElement.classList.add('perfMobile');
 
   // Decode off-screen images asynchronously and keep them low-priority.
