@@ -618,6 +618,37 @@ section.xSectionLive:before{content:"";position:absolute;inset:0;pointer-events:
 }
 </style>
 
+
+<style id="mobileKineticVisibleFix">
+@media (max-width:900px),(pointer:coarse){
+  html.perfMobile .kineticLaunch,
+  html.perfStable .kineticLaunch{display:block!important;}
+  html.perfMobile .kineticLaunch:before,
+  html.perfStable .kineticLaunch:before{animation:none!important;opacity:.35;}
+  html.perfMobile .kineticWordsTrack,
+  html.perfStable .kineticWordsTrack{animation:none!important;transform:none!important;}
+  html.perfMobile .motionRoad,
+  html.perfStable .motionRoad{height:330px!important;overflow:hidden!important;perspective:none!important;}
+  html.perfMobile .runCar,
+  html.perfStable .runCar{animation:none!important;will-change:auto!important;clip-path:none!important;transform:none!important;opacity:1!important;box-shadow:0 14px 34px rgba(0,0,0,.42)!important;}
+  html.perfMobile .runCar img,
+  html.perfStable .runCar img{filter:none!important;transform:none!important;display:block!important;visibility:visible!important;opacity:1!important;}
+  html.perfMobile .runCar.r1,
+  html.perfStable .runCar.r1{display:block!important;left:2vw!important;top:8px!important;width:84vw!important;height:205px!important;}
+  html.perfMobile .runCar.r2,
+  html.perfStable .runCar.r2{display:none!important;}
+  html.perfMobile .runCar.r3,
+  html.perfStable .runCar.r3{display:block!important;left:18vw!important;top:122px!important;width:78vw!important;height:195px!important;}
+  html.perfMobile .runCar .runLabel,
+  html.perfStable .runCar .runLabel{font-size:14px!important;left:14px!important;bottom:12px!important;}
+}
+@media(max-width:560px){
+  html.perfMobile .motionRoad,html.perfStable .motionRoad{height:300px!important;}
+  html.perfMobile .runCar.r1,html.perfStable .runCar.r1{height:180px!important;}
+  html.perfMobile .runCar.r3,html.perfStable .runCar.r3{top:108px!important;height:175px!important;}
+}
+</style>
+
 </head>
 <body>
 <div class="siteIntro" id="siteIntro" aria-label="3RAFE intro"><div class="introHalo"></div><div class="introInner"><div class="introMark">3<b>RAFE</b></div><div class="introSignature">SIGNATURE · DUBAI</div><div class="introRoad"><div class="introCar" id="introCar"><svg viewBox="0 0 96 48" fill="none" aria-hidden="true"><path d="M13 31 21 17c2-4 6-6 10-6h35c5 0 8 2 11 6l8 14" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M11 31h74c4 0 7 3 7 7v2H4v-2c0-4 3-7 7-7Z" fill="currentColor" opacity=".25" stroke="currentColor" stroke-width="3"/><circle cx="22" cy="40" r="6" fill="#050505" stroke="currentColor" stroke-width="3"/><circle cx="74" cy="40" r="6" fill="#050505" stroke="currentColor" stroke-width="3"/></svg></div></div><div class="introLoader"><i id="introLoaderBar"></i></div><div class="introMeta"><span data-i18n="luxuryLoader"></span><strong id="introPercent">0%</strong></div><button class="introSound" id="introSoundBtn" type="button" data-i18n="introSound"></button></div></div>
@@ -1588,4 +1619,35 @@ if(window.__3RAFE_MOBILE_ULTRA){
 
 </script>
 
+
+<script id="mobileTrendingMotion">
+(()=>{
+  const isMobile=window.matchMedia('(max-width:900px),(pointer:coarse)').matches;
+  const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!isMobile||reduce)return;
+  let timer=null, userPauseUntil=0;
+  const start=()=>{
+    const rail=document.getElementById('trendingRail');
+    if(!rail)return;
+    const move=()=>{
+      if(document.hidden||Date.now()<userPauseUntil)return;
+      const card=rail.querySelector('.trendCard');
+      if(!card)return;
+      const gap=parseFloat(getComputedStyle(rail).columnGap||getComputedStyle(rail).gap||14)||14;
+      const step=card.getBoundingClientRect().width+gap;
+      const max=Math.max(0,rail.scrollWidth-rail.clientWidth);
+      if(max<8)return;
+      const next=rail.scrollLeft+step;
+      if(next>=max-8) rail.scrollTo({left:0,behavior:'smooth'});
+      else rail.scrollTo({left:next,behavior:'smooth'});
+    };
+    rail.addEventListener('touchstart',()=>{userPauseUntil=Date.now()+8000},{passive:true});
+    rail.addEventListener('pointerdown',()=>{userPauseUntil=Date.now()+8000},{passive:true});
+    clearInterval(timer);
+    timer=setInterval(move,4200);
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)userPauseUntil=Date.now()+1200});
+})();
+</script>
 </body></html>
