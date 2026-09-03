@@ -572,6 +572,33 @@ section.xSectionLive:before{content:"";position:absolute;inset:0;pointer-events:
   html.perfMobile .perfPosterShell .videoPlayIcon{z-index:5}
   html.perfMobile *{-webkit-tap-highlight-color:transparent}
 }
+
+/* 3RAFE FINAL iPhone reliability pass: reduce GPU layers and force stable image painting. */
+@media(max-width:900px),(pointer:coarse){
+  html.perfMobile{scroll-behavior:auto!important}
+  html.perfMobile body:before{display:none!important}
+  html.perfMobile .carCard img,
+  html.perfMobile .featureCard img,
+  html.perfMobile .mostCard img,
+  html.perfMobile .swipeCard img,
+  html.perfMobile .trendCard img,
+  html.perfMobile .weekHeroImg,
+  html.perfMobile .weekThumb img,
+  html.perfMobile #gallery img,
+  html.perfMobile #modalCover{
+    -webkit-transform:none!important;
+    transform:none!important;
+    filter:none!important;
+    will-change:auto!important;
+    backface-visibility:visible!important;
+  }
+  html.perfMobile .carCard:hover,
+  html.perfMobile .featureCard:hover,
+  html.perfMobile .mostCard:hover,
+  html.perfMobile .swipeCard:hover,
+  html.perfMobile .trendCard:hover{transform:none!important}
+}
+
 </style>
 </head>
 <body>
@@ -956,7 +983,7 @@ function initExperience15(){updateFavoriteCount();initSoundMode();initIntro();re
       img.style.visibility='visible';img.style.opacity='1';
       const r=img.getBoundingClientRect();
       if(r.bottom>-innerHeight && r.top<innerHeight*1.5){
-        if(i<4)img.loading='eager';
+        img.loading='eager';
         // Safari sometimes keeps a lazy image blank after fast scrolling. Re-assign once.
         if(img.complete && !img.naturalWidth && !img.dataset.paintRetry){
           img.dataset.paintRetry='1';
@@ -981,7 +1008,7 @@ function initExperience15(){updateFavoriteCount();initSoundMode();initIntro();re
     list.slice(0,limit).forEach((c,i)=>{
       const a=document.createElement('article');a.className='carCard reveal show cineCard';a.style.setProperty('--neon',neonForCar(c,i));
       const cover=coverFor(c);
-      a.innerHTML=`<div class="carMedia">${cover?`<img loading="${i<4?'eager':'lazy'}" decoding="async" ${i<2?'fetchpriority="high"':''} src="${cover}" alt="${c.name}">`:`<div class="emptyCar">${tx('noPhotos')}</div>`}${i<4?'<span class="badge">Signature</span>':''}<div class="carGhostName">${c.name}</div>${availabilityBadgeHTML(c)}${favoriteButtonHTML(c)}<button class="compareButton${compareCars.some(x=>x.name===c.name)?' selected':''}" type="button">${compareCars.some(x=>x.name===c.name)?'✓ ':''}${tx('compare')}</button></div><div class="carBody"><div class="carOverline">${brand(c.name)} · ${bodyTypeLabel(c.name,lang)}</div><h3>${c.name}</h3><p class="carDesc">${carSummary(c,lang)}</p><div class="carBottom"><span>${c.images.length} ${tx('photos')}</span><span class="miniArrow">↗</span></div></div>`;
+      a.innerHTML=`<div class="carMedia">${cover?`<img loading="${i<8?'eager':'lazy'}" decoding="async" ${i<2?'fetchpriority="high"':''} src="${cover}" alt="${c.name}">`:`<div class="emptyCar">${tx('noPhotos')}</div>`}${i<4?'<span class="badge">Signature</span>':''}<div class="carGhostName">${c.name}</div>${availabilityBadgeHTML(c)}${favoriteButtonHTML(c)}<button class="compareButton${compareCars.some(x=>x.name===c.name)?' selected':''}" type="button">${compareCars.some(x=>x.name===c.name)?'✓ ':''}${tx('compare')}</button></div><div class="carBody"><div class="carOverline">${brand(c.name)} · ${bodyTypeLabel(c.name,lang)}</div><h3>${c.name}</h3><p class="carDesc">${carSummary(c,lang)}</p><div class="carBottom"><span>${c.images.length} ${tx('photos')}</span><span class="miniArrow">↗</span></div></div>`;
       a.onclick=()=>openCar(c);
       a.querySelector('.compareButton')?.addEventListener('click',e=>{e.stopPropagation();toggleCompare(c)});
       a.querySelector('.favoriteButton')?.addEventListener('click',e=>{e.stopPropagation();toggleFavorite(c)});
@@ -1638,6 +1665,55 @@ function xInit(){
 })();
 
 xInit();
+
+// ==== 3RAFE FINAL iPhone image reliability guard ====
+(function(){
+  const mobile=window.matchMedia('(max-width: 900px), (pointer: coarse)').matches;
+  if(!mobile)return;
+  const seen=new WeakSet();
+  const io='IntersectionObserver' in window?new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(!e.isIntersecting)return;
+      const img=e.target;
+      img.loading='eager';
+      img.decoding='async';
+      img.style.visibility='visible';
+      img.style.opacity='1';
+      io.unobserve(img);
+    });
+  },{rootMargin:'1200px 0px',threshold:0}):null;
+  const watch=(root=document)=>{
+    root.querySelectorAll?.('img').forEach(img=>{
+      if(seen.has(img))return;seen.add(img);
+      img.decoding='async';
+      if(io)io.observe(img);
+      else img.loading='eager';
+    });
+  };
+  watch();
+  const mo=new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{
+    if(n.nodeType!==1)return;
+    if(n.tagName==='IMG')watch(n.parentElement||document);else watch(n);
+  })));
+  mo.observe(document.body,{childList:true,subtree:true});
+  let raf=0;
+  const wake=()=>{
+    if(raf)return;raf=requestAnimationFrame(()=>{
+      raf=0;
+      document.querySelectorAll('img[src]').forEach(img=>{
+        const r=img.getBoundingClientRect();
+        if(r.bottom>-500&&r.top<innerHeight+900){
+          img.loading='eager';img.style.visibility='visible';img.style.opacity='1';
+        }
+      });
+    });
+  };
+  addEventListener('scroll',wake,{passive:true});
+  addEventListener('touchend',wake,{passive:true});
+  addEventListener('pageshow',()=>{watch();wake()});
+  wake();
+})();
+
 </script>
 
 </body></html>
