@@ -135,9 +135,15 @@ body:after{content:"";position:fixed;inset:0;pointer-events:none;z-index:9998;ba
 .runCar.r1{top:18px;animation:driveOne 12s cubic-bezier(.45,0,.55,1) infinite}
 .runCar.r2{top:82px;animation:driveTwo 15s cubic-bezier(.45,0,.55,1) infinite 1.4s;transform:scale(.82);opacity:.78}
 .runCar.r3{top:136px;animation:driveThree 18s cubic-bezier(.45,0,.55,1) infinite 3.2s;transform:scale(.68);opacity:.56}
+.runCar.r4{top:36px;animation:driveFour 16s cubic-bezier(.45,0,.55,1) infinite 2.3s;transform:scale(.76);opacity:.72}
+.runCar.r5{top:164px;animation:driveFive 17s cubic-bezier(.45,0,.55,1) infinite .7s;transform:scale(.60);opacity:.52}
+.runCar.r6{top:96px;animation:driveSix 19s cubic-bezier(.45,0,.55,1) infinite 4.2s;transform:scale(.70);opacity:.62}
 @keyframes driveOne{0%{left:-48vw;transform:skewX(-3deg)}45%,55%{left:29vw;transform:skewX(0)}100%{left:110vw;transform:skewX(3deg)}}
 @keyframes driveTwo{0%{left:105vw;transform:scale(.82) skewX(2deg)}48%,58%{left:15vw;transform:scale(.82)}100%{left:-55vw;transform:scale(.82) skewX(-2deg)}}
 @keyframes driveThree{0%{left:-50vw;transform:scale(.68)}52%{left:44vw;transform:scale(.68)}100%{left:110vw;transform:scale(.68)}}
+@keyframes driveFour{0%{left:112vw;transform:scale(.76) skewX(2deg)}46%,58%{left:38vw;transform:scale(.76)}100%{left:-52vw;transform:scale(.76) skewX(-2deg)}}
+@keyframes driveFive{0%{left:-52vw;transform:scale(.60)}48%,62%{left:10vw;transform:scale(.60)}100%{left:112vw;transform:scale(.60)}}
+@keyframes driveSix{0%{left:110vw;transform:scale(.70)}46%,60%{left:56vw;transform:scale(.70)}100%{left:-48vw;transform:scale(.70)}}
 .launchCaption{display:flex;justify-content:space-between;gap:30px;align-items:end;margin-top:10px}.launchCaption h2{font-family:Arial Black,Impact,sans-serif;font-size:clamp(42px,6vw,86px);line-height:.82;text-transform:uppercase;font-style:italic;letter-spacing:-.06em;margin:0}.launchCaption h2 b{color:var(--hot);font-weight:inherit}.launchCaption p{max-width:440px;color:#888;font-size:12px;line-height:1.8;margin:0}
 
 /* crazy cinematic strips */
@@ -160,8 +166,8 @@ body:after{content:"";position:fixed;inset:0;pointer-events:none;z-index:9998;ba
 .popWord{display:inline-block;opacity:0;transform:translateY(80%) rotate(2deg);animation:popWord .72s cubic-bezier(.17,.84,.32,1.2) forwards}.popWord:nth-child(2){animation-delay:.12s}.popWord:nth-child(3){animation-delay:.24s}.popWord:nth-child(4){animation-delay:.36s}@keyframes popWord{to{opacity:1;transform:none}}
 .speedFlash{position:fixed;z-index:9000;pointer-events:none;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.58),transparent);width:36vw;opacity:0;animation:flashLine 5.3s linear infinite}.speedFlash.f1{top:26%;left:-40vw}.speedFlash.f2{top:67%;left:-55vw;animation-delay:2.1s;width:48vw}.speedFlash.f3{top:84%;left:-45vw;animation-delay:3.7s;width:30vw}@keyframes flashLine{0%,72%{transform:translateX(0);opacity:0}76%{opacity:.75}92%{transform:translateX(180vw);opacity:.18}100%{transform:translateX(180vw);opacity:0}}
 
-@media(max-width:900px){.motionRoad{height:300px}.runCar{width:82vw;height:220px}.runCar.r2{top:72px}.runCar.r3{display:none}.launchCaption{display:block}.launchCaption p{margin-top:22px}.cinemaShot{width:72vw;height:190px}.kineticLaunch{padding-top:48px}.heroCopy:before{display:none}}
-@media(max-width:560px){.kineticWords span{font-size:52px}.motionRoad{height:250px}.runCar{height:190px}.runCar.r2{top:48px}.launchCaption h2{font-size:45px}.speedFlash{display:none}}
+@media(max-width:900px){.motionRoad{height:335px}.runCar{width:82vw;height:220px}.runCar.r2,.runCar.r5{display:none}.runCar.r3{top:118px}.runCar.r4{top:58px}.runCar.r6{top:178px;transform:scale(.56);opacity:.62}.launchCaption{display:block}.launchCaption p{margin-top:22px}.cinemaShot{width:72vw;height:190px}.kineticLaunch{padding-top:48px}.heroCopy:before{display:none}}
+@media(max-width:560px){.kineticWords span{font-size:52px}.motionRoad{height:315px}.runCar{height:188px}.runCar.r3{top:118px;transform:scale(.54);opacity:.82}.runCar.r4{top:42px;transform:scale(.60);opacity:.88}.runCar.r6{top:190px;transform:scale(.48);opacity:.82}.launchCaption h2{font-size:45px}.speedFlash{display:none}}
 
 
 
@@ -181,7 +187,7 @@ body:after{content:"";position:fixed;inset:0;pointer-events:none;z-index:9998;ba
 .cineCard.in{opacity:1!important;transform:none!important;clip-path:inset(0 0 0 0 round 0)}
 .cineCard.in:hover{transform:translateY(-5px)!important}
 .runCar:after{content:"";position:absolute;z-index:-1;left:-36%;right:20%;bottom:16%;height:4px;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--run,#33e6ff) 75%,transparent),transparent);filter:blur(4px);opacity:.65;transform:skewX(-18deg)}
-.runCar.r1{--run:#33e6ff}.runCar.r2{--run:#ff4f78}.runCar.r3{--run:#ffd65a}
+.runCar.r1{--run:#33e6ff}.runCar.r2{--run:#ff4f78}.runCar.r3{--run:#ffd65a}.runCar.r4{--run:#85ff8f}.runCar.r5{--run:#b388ff}.runCar.r6{--run:#62d6ff}
 .motionRoad:before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(90deg,transparent 0 12%,rgba(255,255,255,.018) 12% 12.2%);animation:roadFlow 2.2s linear infinite}
 @keyframes roadFlow{to{background-position:180px 0}}
 .quickBook{position:relative;overflow:hidden}.quickBook:after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;background:linear-gradient(100deg,transparent 0 42%,rgba(216,184,117,.10) 49%,rgba(255,255,255,.08) 52%,transparent 59%);transform:translateX(-130%);animation:bookSweep 7s ease-in-out infinite}
@@ -628,7 +634,7 @@ section.xSectionLive:before{content:"";position:absolute;inset:0;pointer-events:
   html.perfMobile .kineticWordsTrack,
   html.perfStable .kineticWordsTrack{animation:none!important;transform:none!important;}
   html.perfMobile .motionRoad,
-  html.perfStable .motionRoad{height:330px!important;overflow:hidden!important;perspective:none!important;}
+  html.perfStable .motionRoad{height:340px!important;overflow:hidden!important;perspective:none!important;}
   html.perfMobile .runCar,
   html.perfStable .runCar{animation:none!important;will-change:auto!important;clip-path:none!important;transform:none!important;opacity:1!important;box-shadow:0 14px 34px rgba(0,0,0,.42)!important;}
   html.perfMobile .runCar img,
@@ -636,19 +642,72 @@ section.xSectionLive:before{content:"";position:absolute;inset:0;pointer-events:
   html.perfMobile .runCar.r1,
   html.perfStable .runCar.r1{display:block!important;left:2vw!important;top:8px!important;width:84vw!important;height:205px!important;}
   html.perfMobile .runCar.r2,
-  html.perfStable .runCar.r2{display:none!important;}
+  html.perfStable .runCar.r2,
+  html.perfMobile .runCar.r5,
+  html.perfStable .runCar.r5{display:none!important;}
   html.perfMobile .runCar.r3,
-  html.perfStable .runCar.r3{display:block!important;left:18vw!important;top:122px!important;width:78vw!important;height:195px!important;}
+  html.perfStable .runCar.r3{display:block!important;left:48vw!important;top:150px!important;width:46vw!important;height:112px!important;opacity:.96!important;z-index:3!important;}
+  html.perfMobile .runCar.r4,
+  html.perfStable .runCar.r4{display:block!important;left:4vw!important;top:164px!important;width:46vw!important;height:112px!important;opacity:.96!important;z-index:3!important;}
+  html.perfMobile .runCar.r6,
+  html.perfStable .runCar.r6{display:block!important;left:28vw!important;top:92px!important;width:42vw!important;height:104px!important;opacity:.96!important;z-index:4!important;}
   html.perfMobile .runCar .runLabel,
-  html.perfStable .runCar .runLabel{font-size:14px!important;left:14px!important;bottom:12px!important;}
+  html.perfStable .runCar .runLabel{font-size:12px!important;left:12px!important;bottom:10px!important;}
 }
 @media(max-width:560px){
-  html.perfMobile .motionRoad,html.perfStable .motionRoad{height:300px!important;}
-  html.perfMobile .runCar.r1,html.perfStable .runCar.r1{height:180px!important;}
-  html.perfMobile .runCar.r3,html.perfStable .runCar.r3{top:108px!important;height:175px!important;}
+  html.perfMobile .motionRoad,html.perfStable .motionRoad{height:305px!important;}
+  html.perfMobile .runCar.r1,html.perfStable .runCar.r1{height:170px!important;}
+  html.perfMobile .runCar.r3,html.perfStable .runCar.r3{top:144px!important;height:102px!important;}
+  html.perfMobile .runCar.r4,html.perfStable .runCar.r4{top:156px!important;height:102px!important;}
+  html.perfMobile .runCar.r6,html.perfStable .runCar.r6{top:86px!important;height:96px!important;}
 }
 </style>
 
+
+<style id="mobileKineticMotionFixV2">
+@media (max-width:900px),(pointer:coarse){
+  html.perfMobile .runCar.r1,html.perfStable .runCar.r1{
+    animation:mobileDriveA 11s cubic-bezier(.45,0,.55,1) infinite!important;
+    translate:-105vw 0;
+    will-change:translate!important;
+  }
+  html.perfMobile .runCar.r3,html.perfStable .runCar.r3{
+    animation:mobileDriveB 13s cubic-bezier(.45,0,.55,1) infinite 1.2s!important;
+    translate:18px 0;
+    will-change:translate!important;
+  }
+  html.perfMobile .runCar.r4,html.perfStable .runCar.r4{
+    animation:mobileDriveC 12.5s cubic-bezier(.45,0,.55,1) infinite .6s!important;
+    translate:-18px 0;
+    will-change:translate!important;
+  }
+  html.perfMobile .runCar.r6,html.perfStable .runCar.r6{
+    animation:mobileDriveD 9.5s ease-in-out infinite!important;
+    translate:0 0;
+    will-change:translate!important;
+  }
+}
+@keyframes mobileDriveA{
+  0%{translate:-105vw 0}
+  42%,58%{translate:0 0}
+  100%{translate:110vw 0}
+}
+@keyframes mobileDriveB{
+  0%{translate:22px 0}
+  50%{translate:-12px 0}
+  100%{translate:22px 0}
+}
+@keyframes mobileDriveC{
+  0%{translate:-18px 0}
+  50%{translate:14px 0}
+  100%{translate:-18px 0}
+}
+@keyframes mobileDriveD{
+  0%{translate:0 0}
+  50%{translate:0 -8px}
+  100%{translate:0 0}
+}
+</style>
 </head>
 <body>
 <div class="siteIntro" id="siteIntro" aria-label="3RAFE intro"><div class="introHalo"></div><div class="introInner"><div class="introMark">3<b>RAFE</b></div><div class="introSignature">SIGNATURE · DUBAI</div><div class="introRoad"><div class="introCar" id="introCar"><svg viewBox="0 0 96 48" fill="none" aria-hidden="true"><path d="M13 31 21 17c2-4 6-6 10-6h35c5 0 8 2 11 6l8 14" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M11 31h74c4 0 7 3 7 7v2H4v-2c0-4 3-7 7-7Z" fill="currentColor" opacity=".25" stroke="currentColor" stroke-width="3"/><circle cx="22" cy="40" r="6" fill="#050505" stroke="currentColor" stroke-width="3"/><circle cx="74" cy="40" r="6" fill="#050505" stroke="currentColor" stroke-width="3"/></svg></div></div><div class="introLoader"><i id="introLoaderBar"></i></div><div class="introMeta"><span data-i18n="luxuryLoader"></span><strong id="introPercent">0%</strong></div><button class="introSound" id="introSoundBtn" type="button" data-i18n="introSound"></button></div></div>
@@ -682,6 +741,9 @@ section.xSectionLive:before{content:"";position:absolute;inset:0;pointer-events:
    <article class="runCar r1"><img src="https://3raferentalcar.vercel.app/cars/40-lamborgine-aventador-svj/001.png" alt="Lamborghini Aventador SVJ"><span class="runLabel">Aventador SVJ</span></article>
    <article class="runCar r2"><img src="https://3raferentalcar.vercel.app/cars/29-ferari-sf90/001.png" alt="Ferrari SF90"><span class="runLabel">Ferrari SF90</span></article>
    <article class="runCar r3"><img src="https://3raferentalcar.vercel.app/cars/32-g-900-brubs/015.jpg" alt="G900 Brabus"><span class="runLabel">G900 BRABUS</span></article>
+   <article class="runCar r4"><img src="https://3raferentalcar.vercel.app/cars/41-lamborgine-hurcan-spider/001.jpg" alt="Lamborghini Huracan Spider"><span class="runLabel">Huracan Spider</span></article>
+   <article class="runCar r5"><img src="https://3raferentalcar.vercel.app/cars/13-bmw-m4-convertible/001.jpg" alt="BMW M4 Convertible"><span class="runLabel">BMW M4 Convertible</span></article>
+   <article class="runCar r6"><img src="https://3raferentalcar.vercel.app/cars/16-bmw-m8-convertible/001.png" alt="BMW M8 Convertible"><span class="runLabel">BMW M8 Convertible</span></article>
   </div>
   <div class="launchCaption reveal"><h2>Cars don't sit.<br>They <b>move.</b></h2><p>Luxury in motion — supercars, SUVs and signature machines built to dominate Dubai day and night.</p></div>
  </div>
@@ -1620,34 +1682,4 @@ if(window.__3RAFE_MOBILE_ULTRA){
 </script>
 
 
-<script id="mobileTrendingMotion">
-(()=>{
-  const isMobile=window.matchMedia('(max-width:900px),(pointer:coarse)').matches;
-  const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(!isMobile||reduce)return;
-  let timer=null, userPauseUntil=0;
-  const start=()=>{
-    const rail=document.getElementById('trendingRail');
-    if(!rail)return;
-    const move=()=>{
-      if(document.hidden||Date.now()<userPauseUntil)return;
-      const card=rail.querySelector('.trendCard');
-      if(!card)return;
-      const gap=parseFloat(getComputedStyle(rail).columnGap||getComputedStyle(rail).gap||14)||14;
-      const step=card.getBoundingClientRect().width+gap;
-      const max=Math.max(0,rail.scrollWidth-rail.clientWidth);
-      if(max<8)return;
-      const next=rail.scrollLeft+step;
-      if(next>=max-8) rail.scrollTo({left:0,behavior:'smooth'});
-      else rail.scrollTo({left:next,behavior:'smooth'});
-    };
-    rail.addEventListener('touchstart',()=>{userPauseUntil=Date.now()+8000},{passive:true});
-    rail.addEventListener('pointerdown',()=>{userPauseUntil=Date.now()+8000},{passive:true});
-    clearInterval(timer);
-    timer=setInterval(move,4200);
-  };
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden)userPauseUntil=Date.now()+1200});
-})();
-</script>
 </body></html>
