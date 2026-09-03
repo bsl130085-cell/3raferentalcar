@@ -1,0 +1,21 @@
+{
+  "name": "3RAFE Signature — Luxury Car Rental Dubai",
+  "short_name": "3RAFE",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#050505",
+  "description": "3RAFE Signature Dubai luxury car collection and direct booking experience.",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
